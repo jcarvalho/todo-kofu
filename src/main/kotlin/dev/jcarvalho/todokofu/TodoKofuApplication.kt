@@ -7,6 +7,8 @@ import org.springframework.fu.kofu.application
 import org.springframework.fu.kofu.mongo.reactiveMongodb
 import org.springframework.fu.kofu.webflux.webFlux
 import org.springframework.web.reactive.function.server.body
+import org.springframework.web.reactive.function.server.bodyToMono
+import java.util.*
 
 val app = application(WebApplicationType.REACTIVE) {
 	webFlux {
@@ -14,6 +16,12 @@ val app = application(WebApplicationType.REACTIVE) {
 			val repository = ref<TodoItemRepository>()
 			GET("/todo") {
 				ok().body(repository.findAll())
+			}
+			POST("/todo") { request ->
+				ok().body(
+						request.bodyToMono<ItemRequest>()
+								.flatMap { repository.create(it.title) }
+				)
 			}
 		}
 		codecs {
@@ -26,9 +34,15 @@ val app = application(WebApplicationType.REACTIVE) {
 	}
 }
 
+data class ItemRequest(
+		val title: String
+)
+
 class TodoItemRepository(private val mongo: ReactiveMongoOperations) {
 
 	fun findAll() = mongo.findAll<TodoItem>()
+
+	fun create(title: String) = mongo.save(TodoItem(id = UUID.randomUUID().toString(), title = title))
 
 }
 
