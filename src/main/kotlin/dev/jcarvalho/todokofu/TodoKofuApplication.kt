@@ -1,11 +1,20 @@
 package dev.jcarvalho.todokofu
 
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
+import org.springframework.boot.WebApplicationType
+import org.springframework.fu.kofu.application
+import org.springframework.fu.kofu.webflux.webFlux
 
-@SpringBootApplication
-class TodoKofuApplication
+val app = application(WebApplicationType.REACTIVE) {
+	webFlux {
+		router {
+
+		}
+		codecs {
+			jackson()
+		}
+	}
+}
 
 fun main(args: Array<String>) {
-	runApplication<TodoKofuApplication>(*args)
+	app.run(args)
 }
